@@ -24,6 +24,24 @@ export function app() {
 
   // Example Express Rest API endpoints
   // server.get('/api/**', (req, res) => { });
+
+  server.get('/api/test', (req, res) => {
+    res.json([
+      {
+        name: 'Photos',
+        updated: new Date('1/1/16'),
+      },
+      {
+        name: 'Recipes',
+        updated: new Date('1/17/16'),
+      },
+      {
+        name: 'Work',
+        updated: new Date('1/28/16'),
+      }
+    ])
+  });
+
   // Serve static files from /browser
   server.get('*.*', express.static(distFolder, {
     maxAge: '1y'
