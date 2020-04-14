@@ -8,6 +8,9 @@ import { AppServerModule } from './src/main.server';
 import { APP_BASE_HREF } from '@angular/common';
 import { existsSync } from 'fs';
 
+import * as mongoose from 'mongoose';
+import { createMessage, listMessages, deleteMessage } from 'server/services/messages';
+
 // The Express app is exported so that it can be used by serverless Functions.
 export function app() {
   const server = express();
@@ -25,22 +28,20 @@ export function app() {
   // Example Express Rest API endpoints
   // server.get('/api/**', (req, res) => { });
 
-  server.get('/api/test', (req, res) => {
-    res.json([
-      {
-        name: 'Photos',
-        updated: new Date('1/1/16'),
-      },
-      {
-        name: 'Recipes',
-        updated: new Date('1/17/16'),
-      },
-      {
-        name: 'Work',
-        updated: new Date('1/28/16'),
-      }
-    ])
+  server.use(express.json());
+  server.use(express.urlencoded({extended: true}));
+
+  server.get('/api/messages', async (req, res) => {
+    res.json(await listMessages());
   });
+
+  server.post('/api/messages', async (req, res) => {
+    res.json(await createMessage(req.body.text));
+  })
+
+  server.delete('/api/messages/:id', async (req, res) => {
+    res.json(await deleteMessage(req.params.id));
+  })
 
   // Serve static files from /browser
   server.get('*.*', express.static(distFolder, {
@@ -60,8 +61,26 @@ function run() {
 
   // Start up the Node server
   const server = app();
-  server.listen(port, () => {
-    console.log(`Node Express server listening on http://localhost:${port}`);
+
+  // Set up default mongoose connection
+  const url = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/mean-stack"
+  mongoose.connect(url, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  });
+
+  // Get the default connection
+  const db = mongoose.connection;
+
+  // Bind connection to error event (to get notification of connection errors)
+  db.on("error", console.error.bind(console, "MongoDB connection error:"));
+
+  db.once("open", () => {
+    console.log(`Database connected: ${url}`);
+
+    server.listen(port, () => {
+      console.log(`Node Express server listening on http://localhost:${port}`);
+    });
   });
 }
 

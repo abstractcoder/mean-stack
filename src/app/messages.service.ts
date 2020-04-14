@@ -12,6 +12,14 @@ export class MessagesService {
   ) { }
 
   getMessages() {
-    return this.http.get("/api/test");
+    return this.http.get("/api/messages");
+  }
+
+  createMessage(text: String) {
+    return this.http.post("/api/messages", {text: text});
+  }
+
+  deleteMessage(message) {
+    return this.http.delete(`/api/messages/${message._id}`)
   }
 }

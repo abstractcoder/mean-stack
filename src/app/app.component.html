@@ -1,9 +1,18 @@
+<form [formGroup]="messageForm" (ngSubmit)="createMessage()">
+  <mat-form-field>
+    <mat-label>Message</mat-label>
+    <input matInput formControlName="text" required>
+  </mat-form-field>
+  <button type="submit" mat-raised-button>Send Message</button>
+</form>
+
 <mat-list>
   <div mat-subheader>Messages</div>
-  <mat-list-item *ngFor="let message of messages | async">
-    <mat-icon mat-list-icon>email</mat-icon>
-    <div mat-line>{{message.name}}</div>
-    <div mat-line> {{message.updated | date}} </div>
+
+  <mat-list-item *ngFor="let message of messages">
+    <mat-icon mat-list-icon (click)="deleteMessage(message)">delete</mat-icon>
+    <div mat-line>{{message.text}}</div>
+    <div mat-line> {{message.createdAt | date:"shortTime"}} </div>
   </mat-list-item>
 </mat-list>
 
